@@ -1,5 +1,6 @@
 import pandas as pd 
 from collections import defaultdict
+from IPython.display import clear_output
 
 def compute_instersection(*args):
     """Returns common elements in the iterables given
@@ -83,4 +84,58 @@ def reduce_df(df,to_keep):
     df = df.dropna(how='all').dropna(axis='columns',how='all')
 
     return df
-    
+
+def organize_features_in_genre_dict(features_df, db_df, genres):
+    """Reformats features_df in a dictionary of sub_generes
+
+    Args:
+        features_df: dataframe of rows:ids and cols:feaures
+        db_df: dataframe of rows:ids and cols:generes
+        genres: generes to consider
+
+    Return:
+        information: dictionary of subgenere : features
+
+    """
+    #initialize dictionary
+    information = {}
+
+    #loop through subgenres to create an entry in the dictionary for each subgenre where in each entry, a dictionary of
+    #the features will be created in order to get a dictionary of features for each genre in an organised manner.
+    for i,sub_genre in enumerate(genres):
+        
+        print("Processing {0} out of {1}".format(i+1,len(genres)))
+
+        #temporal variable that copies the lastfm intersected N pandas matrix
+        db_df_temp = db_df.copy()
+
+        #iterate through columns for:
+        #- All genres that are not the one in each iteration will be repaced with NaN
+        #- All columns and sound ids that are not from that genere get deleted
+        for col in db_df_temp:
+            
+            db_df_temp[col] = db_df_temp[col].str.extract(r"\b^("+sub_genre+r")\b")
+
+        db_df_temp = db_df_temp.dropna(how='all').dropna(how='all',axis='columns')
+        
+        #initializing the features dictionary for each subgenre
+        information[sub_genre] = {}
+        
+        #for each feature, add the list features for each subgenre to the dictionary
+        for feature in list(features_df):
+            
+            #get only the feature that it's wanted
+            temp = features_df[feature].to_frame()
+            
+            #get only the information for the genre for this iteration
+            temp = temp.drop(set(temp.index.tolist())-set(db_df_temp.index.tolist()))
+            
+            #add entry to the dictionary
+            information[sub_genre].update({ feature : temp[feature].tolist() })
+        
+        clear_output()
+
+    print("Done!")
+
+    return information
+
