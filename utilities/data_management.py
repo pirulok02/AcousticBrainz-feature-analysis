@@ -1,6 +1,10 @@
+import os
 import pandas as pd 
 from collections import defaultdict
 from IPython.display import clear_output
+from utilities.constants import *
+import time
+import json
 
 def compute_instersection(*args):
     """Returns common elements in the iterables given
@@ -139,3 +143,50 @@ def organize_features_in_genre_dict(features_df, db_df, genres):
 
     return information
 
+def dataframe_from_json(features_to_extract_from_json, labels_to_extract, features_df):
+
+    #print(features_to_extract_from_json,labels_to_extract)
+    sound_id_highlevel = features_df.index.tolist()
+
+    folder_highlevel_features = os.path.join(DATA_FOLDER,"acousticbrainz-mediaeval-train-intersection-highlevel")
+
+    highlevel_features = pd.DataFrame(columns = features_to_extract_from_json)
+
+    numfolders = sum([1 for _, _, _ in os.walk(folder_highlevel_features)])
+    i = 1
+
+    for subdir, _, files in os.walk(folder_highlevel_features):
+        
+        starttime = time.clock()
+        print("{}/{}".format(str(i),str(numfolders)))
+        
+        for file in files:
+            
+            filename, file_extension = os.path.splitext(file)
+            
+            file_absolute_path = os.path.join(subdir,file)
+            
+            if file_extension == ".json":
+                
+                if any(filename in s for s in sound_id_highlevel):
+                    
+                    temp_dict = {}
+                    temp_dict["mbid"] = filename
+                    
+                    with open(file_absolute_path) as jsonfile:
+                        json_dict = json.load(jsonfile)
+                        
+                    json_dict = json_dict["highlevel"]
+                    for label,feature in zip(labels_to_extract,features_to_extract_from_json):
+                        temp_dict[feature] = json_dict[label]["all"][feature]
+                        
+                    temp_dataframe = pd.DataFrame(temp_dict,index=[0])
+                    highlevel_features = pd.concat([highlevel_features,temp_dataframe],ignore_index = True,sort = True)
+        
+        time_expected = (time.clock()-starttime)*(numfolders-i)
+        print(str(time_expected))
+        i += 1
+
+    highlevel_features = highlevel_features.set_index("mbid").sort_index()
+
+    return highlevel_features
