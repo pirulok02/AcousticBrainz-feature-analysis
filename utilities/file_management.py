@@ -25,7 +25,8 @@ def get_ids(file,delimiter='\t'):
         reader = csv.reader(csvfile, delimiter = delimiter)
         for sound in reader:
             ids.append(sound[0])
-        ids.remove("recordingmbid")
+        #ids.remove("recordingmbid")
+        ids = ids[1:] #removing the first item as it is the column name
 
     return ids
 

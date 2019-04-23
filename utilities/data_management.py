@@ -158,7 +158,6 @@ def dataframe_from_json(features_to_extract_from_json, labels_to_extract, featur
     for subdir, _, files in os.walk(folder_highlevel_features):
         
         starttime = time.clock()
-        print("{}/{}".format(str(i),str(numfolders)))
         
         for file in files:
             
@@ -183,8 +182,11 @@ def dataframe_from_json(features_to_extract_from_json, labels_to_extract, featur
                     temp_dataframe = pd.DataFrame(temp_dict,index=[0])
                     highlevel_features = pd.concat([highlevel_features,temp_dataframe],ignore_index = True,sort = True)
         
+        clear_output()
         time_expected = (time.clock()-starttime)*(numfolders-i)
-        print(str(time_expected))
+        print(time_expected)
+        h = int(time_expected / 3600); m = int((time_expected % 3600) / 60); s = int(time_expected % 60)
+        print("{}/{}\nExpected time: {}h {}m {}s".format(str(i),str(numfolders), h, m, s))
         i += 1
 
     highlevel_features = highlevel_features.set_index("mbid").sort_index()
