@@ -74,6 +74,7 @@ def plotbar(feature_name,counter,percentage,directory):
     plt.legend()
     fig.set_size_inches(15,10)
     plt.savefig(file, dpi=100)
+    plt.show()
     plt.close()
 
 def plotbox(feature_name,list_data,list_names,directory):
@@ -98,6 +99,7 @@ def plotbox(feature_name,list_data,list_names,directory):
     
     fig.set_size_inches(15,10)
     plt.savefig(file, dpi=100)
+    plt.show()
     plt.close()
 
 def plot_all_features(information, features_df, genres):

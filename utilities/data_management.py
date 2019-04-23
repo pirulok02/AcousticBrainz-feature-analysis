@@ -184,7 +184,6 @@ def dataframe_from_json(features_to_extract_from_json, labels_to_extract, featur
         
         clear_output()
         time_expected = (time.clock()-starttime)*(numfolders-i)
-        print(time_expected)
         h = int(time_expected / 3600); m = int((time_expected % 3600) / 60); s = int(time_expected % 60)
         print("{}/{}\nExpected time: {}h {}m {}s".format(str(i),str(numfolders), h, m, s))
         i += 1
